@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".FindRouteFragment">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:id="@+id/from_to_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="From:"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Spinner
+                        android:id="@+id/spinner_from"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_weight="1" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="To:"
+                        android:textAlignment="center"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <Spinner
+                        android:id="@+id/spinner_to"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_weight="1" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/train_timePickerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/from_to_layout">
+
+                    <TimePicker
+                        android:id="@+id/train_timePicker"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.6"
+                        android:timePickerMode="spinner" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/train_recurring_options"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@+id/train_timePickerLayout">
+
+                    <CheckBox
+                        android:id="@+id/train_recurring_CheckSun"
+                        android:layout_width="82dp"
+                        android:layout_height="wrap_content"
+                        android:text="Sun" />
+
+                    <CheckBox
+                        android:id="@+id/train_recurring_checkMon"
+                        android:layout_width="82dp"
+                        android:layout_height="wrap_content"
+                        android:text="Mon" />
+
+                    <CheckBox
+                        android:id="@+id/train_recurring_checkTue"
+                        android:layout_width="82dp"
+                        android:layout_height="wrap_content"
+                        android:text="Tue" />
+
+                    <CheckBox
+                        android:id="@+id/train_recurring_checkWed"
+                        android:layout_width="82dp"
+                        android:layout_height="wrap_content"
+                        android:text="Wed" />
+
+                    <CheckBox
+                        android:id="@+id/train_recurring_checkThu"
+                        android:layout_width="82dp"
+                        android:layout_height="wrap_content"
+                        android:text="Thu" />
+
+
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/train_addRoute"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="Find trains"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    tools:layout_editor_absoluteX="133dp" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </LinearLayout>
+
+</FrameLayout>
