@@ -20,15 +20,15 @@
 
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_marginBottom="10dp"
+            android:id="@+id/card_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="140dp">
 
             <ImageView
                 android:id="@+id/train_image"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginStart="12dp"
                 android:padding="4dp"
                 android:scaleType="centerCrop"
@@ -38,17 +38,17 @@
                 app:layout_constraintVertical_chainStyle="packed" />
 
             <Button
-                android:id="@+id/select_route_btn"
+                android:id="@+id/edit_route_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="@string/select"/>
+                android:text="edit"/>
 
             <TextView
-                android:id="@+id/train_number"
+                android:id="@+id/scheduled_train_number"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
@@ -58,10 +58,10 @@
                 android:textColor="#DE000000"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/select_route_btn" />
+                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn" />
 
             <TextView
-                android:id="@+id/from_station"
+                android:id="@+id/scheduled_from_station"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -69,24 +69,11 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/select_route_btn"
-                app:layout_constraintTop_toBottomOf="@+id/train_number" />
+                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintTop_toBottomOf="@+id/scheduled_train_number" />
 
             <TextView
-                android:id="@+id/to_station"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="4dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-                android:textColor="#8A000000"
-                app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/select_route_btn"
-                app:layout_constraintTop_toBottomOf="@+id/from_station" />
-
-            <TextView
-                android:id="@+id/departure_time"
+                android:id="@+id/scheduled_to_station"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -95,11 +82,11 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/select_route_btn"
-                app:layout_constraintTop_toBottomOf="@+id/to_station" />
+                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintTop_toBottomOf="@+id/scheduled_from_station" />
 
             <TextView
-                android:id="@+id/arrival_time"
+                android:id="@+id/scheduled_depart_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
@@ -108,8 +95,38 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/select_route_btn"
-                app:layout_constraintTop_toBottomOf="@+id/departure_time" />
+                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintTop_toBottomOf="@+id/scheduled_to_station" />
+
+            <TextView
+                android:id="@+id/scheduled_arrival_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="4dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="#8A000000"
+                app:layout_constraintStart_toEndOf="@+id/train_image"
+                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintTop_toBottomOf="@+id/scheduled_depart_time" />
+
+            <TextView
+                android:id="@+id/scheduled_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:lineSpacingExtra="8dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="#DE000000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
+
+
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 
