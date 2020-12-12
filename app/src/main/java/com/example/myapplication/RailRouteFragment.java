@@ -3,7 +3,7 @@ package com.example.myapplication;
 import android.content.Context;
 import android.os.Bundle;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,7 +24,9 @@ import java.util.Collections;
 public class RailRouteFragment extends Fragment {
 
     private static final String ARG_ROUTES = "ROUTES";
+    private static final String ARG_DAYS = "DAYS";
     ArrayList<RailRoute> routes = new ArrayList<>();
+    ArrayList<Integer> days;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -34,10 +36,11 @@ public class RailRouteFragment extends Fragment {
     }
 
     @SuppressWarnings("unused")
-    public static RailRouteFragment newInstance(RailRoute[] routes) {
+    public static RailRouteFragment newInstance(RailRoute[] routes, ArrayList<Integer> days) {
         RailRouteFragment fragment = new RailRouteFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_ROUTES, routes);
+        args.putIntegerArrayList(ARG_DAYS, days);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,6 +50,7 @@ public class RailRouteFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             RailRoute[] routesArray = (RailRoute[]) getArguments().getSerializable(ARG_ROUTES);
+            days = getArguments().getIntegerArrayList(ARG_DAYS);
             Collections.addAll(routes, routesArray);
         }
     }
@@ -61,18 +65,17 @@ public class RailRouteFragment extends Fragment {
             Context context = view.getContext();
             RecyclerView recyclerView = (RecyclerView) view;
             recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            recyclerView.setAdapter(new MyRailRouteRecyclerViewAdapter(routes, ((RailActivity)getActivity()).utils, this));
+            recyclerView.setAdapter(new MyRailRouteRecyclerViewAdapter(routes, ((RailVoucherActivity)getActivity()).utils, this));
         }
 
         return view;
     }
 
     public void dismiss() {
-        getActivity().getFragmentManager().popBackStack(); // For current fragment
-        getActivity().getFragmentManager().popBackStack(); // For timepicker fragment
+        getActivity().getSupportFragmentManager().popBackStack(); // For current fragment
+        getActivity().getSupportFragmentManager().popBackStack(); // For timepicker fragment
         FloatingActionButton fab = getActivity().findViewById(R.id.fab);
         fab.setVisibility(View.VISIBLE);
         Toast.makeText(getActivity().getApplicationContext(), "Scheduled route added successfully", Toast.LENGTH_SHORT).show();
     }
-
 }

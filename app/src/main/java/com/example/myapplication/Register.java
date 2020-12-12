@@ -2,7 +2,7 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 
-import android.app.Fragment;
+import androidx.fragment.app.Fragment;
 
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -67,7 +67,7 @@ public class Register extends Fragment {
                 if (checkDataEntered()) {
                     writeToDb(view, name, password, id, email, phone);
                     Toast.makeText(view.getContext(), "SUCCESS REGISTER!", Toast.LENGTH_SHORT).show();
-                    getFragmentManager().popBackStack();
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }
         });

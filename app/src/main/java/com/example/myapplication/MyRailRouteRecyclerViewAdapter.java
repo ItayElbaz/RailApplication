@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -17,6 +19,7 @@ public class MyRailRouteRecyclerViewAdapter extends RecyclerView.Adapter<MyRailR
     private final List<RailRoute> mValues;
     private RailUtils utils;
     private RailRouteFragment railRouteFragment;
+    private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
     public MyRailRouteRecyclerViewAdapter(List<RailRoute> items, RailUtils utils, RailRouteFragment railRouteFragment) {
         mValues = items;
@@ -40,11 +43,14 @@ public class MyRailRouteRecyclerViewAdapter extends RecyclerView.Adapter<MyRailR
         holder.mFromView.setText("From: " + fromStation.EN);
         TrainStation toStation = utils.getStationDataById(mValues.get(position).destStation);
         holder.mToView.setText("To: " + toStation.EN);
-        holder.mContentView.setText("Estimated time: " + mValues.get(position).estimatedTime);
+        holder.mDepartureView.setText("Dep: " + dateFormat.format(mValues.get(position).departureTime));
+        holder.mArrivalView.setText("Arrival: " + dateFormat.format(mValues.get(position).arrivalTime));
         holder.mSelectBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                utils.addScheduleRoute(mValues.get(position));
+                RailRoute route = mValues.get(position);
+                ScheduledRoute  scheduledRoute = new ScheduledRoute(route, railRouteFragment.days);
+                ((RailVoucherActivity)railRouteFragment.getActivity()).addScheduleRoute(scheduledRoute);
                 railRouteFragment.dismiss();
             }
         });
@@ -60,7 +66,8 @@ public class MyRailRouteRecyclerViewAdapter extends RecyclerView.Adapter<MyRailR
         public final TextView mTrainNumberView;
         public final TextView mFromView;
         public final TextView mToView;
-        public final TextView mContentView;
+        public final TextView mDepartureView;
+        public final TextView mArrivalView;
         public final Button mSelectBtn;
         public RailRoute mItem;
 
@@ -70,14 +77,14 @@ public class MyRailRouteRecyclerViewAdapter extends RecyclerView.Adapter<MyRailR
             mTrainNumberView = view.findViewById(R.id.train_number);
             mFromView = view.findViewById(R.id.from_station);
             mToView = view.findViewById(R.id.to_station);
-            mContentView = view.findViewById(R.id.supporting_text);
+            mDepartureView = view.findViewById(R.id.departure_time);
+            mArrivalView = view.findViewById(R.id.arrival_time);
             mSelectBtn = view.findViewById(R.id.select_route_btn);
-
         }
 
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mTrainNumberView.getText() + "'";
         }
     }
 

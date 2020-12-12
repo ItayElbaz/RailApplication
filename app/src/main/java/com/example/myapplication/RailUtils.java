@@ -1,8 +1,5 @@
 package com.example.myapplication;
 
-import android.os.Build;
-import androidx.annotation.RequiresApi;
-
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -22,7 +18,6 @@ public class RailUtils {
     private Map<Integer, TrainStation> stationsMap = new HashMap<>();
     private String[] stationsNames;
     private TrainStation[] stationsList;
-    private List<RailRoute> schedulesRoutes;
 
     RailUtils() {
         initTrainsData();
@@ -60,10 +55,6 @@ public class RailUtils {
 
     public TrainStation[] getStationsList() {
         return stationsList;
-    }
-
-    public void addScheduleRoute(RailRoute route) {
-        this.schedulesRoutes.add(route);
     }
 
     public TrainStation getStationDataById(String id) {
@@ -176,9 +167,42 @@ public class RailUtils {
 
         Arrays.sort(stationsNames);
         Arrays.sort(stationsList);
-
-        schedulesRoutes = new ArrayList<>();
     }
+
+    // TODO: make a method
+    /*** String sDate1="06/12/2020 11:00:00";
+     Date date1= null;
+     try {
+     date1 = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss").parse(sDate1);
+     } catch (ParseException e) {
+     e.printStackTrace();
+     }
+     List<RailRoute> test = utils.getTrainRoutes(7300, 4900, date1);
+
+
+     smsReceiver = new SMSReceiver() {
+    @Override
+    public void afterAuth() throws ExecutionException, InterruptedException, JSONException {
+    Toast.makeText(getApplicationContext(), "got sms", Toast.LENGTH_SHORT).show();
+
+    String ticket = new GetURL().execute(makeVoucherURL, getTicketBody()).get();
+
+    JSONObject ticketJSON = new JSONObject(ticket);
+    String genertedReference = ticketJSON.getJSONObject("voutcher").getString("GeneretedReferenceValue");
+    String url = String.format(sendSMSURL, genertedReference);
+
+    Toast.makeText(getApplicationContext(), "Ordered voucher, getting SMS", Toast.LENGTH_SHORT).show();
+
+    new GetURL().execute(url, getTicketBody()).get();
+    unregisterReceiver(smsReceiver);
+    Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_SHORT).show();
+    }
+    };
+     IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+     intentFilter.setPriority(999);
+     registerReceiver(smsReceiver, intentFilter);
+     new GetURL().execute(getTokenURL);
+     Toast.makeText(getApplicationContext(), "waiting for sms", Toast.LENGTH_SHORT).show();***/
 }
 
 class TrainStation implements Comparable<TrainStation> {
@@ -211,46 +235,54 @@ class TrainStation implements Comparable<TrainStation> {
     }
 }
 
+class ScheduledRoute {
+    public RailRoute route;
+    public boolean repeated;
+    public ArrayList<Integer> days;
+
+    public ScheduledRoute(RailRoute route, ArrayList<Integer> days){
+        this.route = route;
+        if (days != null) {
+            this.repeated = true;
+            this.days = days;
+        } else {
+            this.repeated = false;
+        }
+    }
+}
+
 
 class RailRoute implements Serializable {
     public Date arrivalTime;
     public Date departureTime;
-    public String estimatedTime;
     public String destStation;
     public String orignStation;
     public String trainNum;
     public String destPlatform;
+    public int namOfTransforms;
     public boolean isDirectTrain;
     public boolean isFullTrain;
 
-    public RailRoute(Date arrivalTime, Date departureTime, String estimatedTime, String destStation, String orignStation,
-                     String trainNum, String destPlatform,  boolean isDirectTrain, boolean isFullTrain) {
-        this.arrivalTime = arrivalTime;
-        this.departureTime = departureTime;
-        this.estimatedTime = estimatedTime;
-        this.destStation = destStation;
-        this.orignStation = orignStation;
-        this.trainNum = trainNum;
-        this.destPlatform = destPlatform;
-        this.isDirectTrain = isDirectTrain;
-        this.isFullTrain = isFullTrain;
-    }
-
     public RailRoute(JSONObject railData) {
         try {
-            this.estimatedTime = railData.getString("EstTime");
-
             JSONArray trains = railData.getJSONArray("Train");
-            JSONObject train = trains.getJSONObject(0);
+            this.namOfTransforms = trains.length();
+            JSONObject firstTrain = trains.getJSONObject(0);
+            JSONObject lastTrain;
+            if (namOfTransforms > 1) {
+                lastTrain = trains.getJSONObject(namOfTransforms - 1);
+            } else {
+                lastTrain = firstTrain;
+            }
 
-            this.arrivalTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(train.getString("ArrivalTime"));
-            this.departureTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(train.getString("DepartureTime"));
-            this.destStation = train.getString("DestinationStation");
-            this.orignStation = train.getString("OrignStation");
-            this.trainNum = train.getString("Trainno");
-            this.destPlatform = train.getString("DestPlatform");
-            this.isDirectTrain = train.getBoolean("DirectTrain");
-            this.isFullTrain = train.getBoolean("isFullTrain");
+            this.arrivalTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(lastTrain.getString("ArrivalTime"));
+            this.departureTime = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").parse(firstTrain.getString("DepartureTime"));
+            this.destStation = lastTrain.getString("DestinationStation");
+            this.orignStation = firstTrain.getString("OrignStation");
+            this.trainNum = firstTrain.getString("Trainno");
+            this.destPlatform = lastTrain.getString("DestPlatform");
+            this.isDirectTrain = namOfTransforms == 1;
+            this.isFullTrain = firstTrain.getBoolean("isFullTrain");
         } catch (Exception e) {
             // ignore
         }
