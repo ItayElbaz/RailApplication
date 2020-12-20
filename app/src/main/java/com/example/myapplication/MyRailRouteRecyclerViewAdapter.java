@@ -87,8 +87,4 @@ public class MyRailRouteRecyclerViewAdapter extends RecyclerView.Adapter<MyRailR
             return super.toString() + " '" + mTrainNumberView.getText() + "'";
         }
     }
-
-    private void onRouteSelect() {
-
-    }
 }

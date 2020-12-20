@@ -38,14 +38,14 @@
                 app:layout_constraintVertical_chainStyle="packed" />
 
             <Button
-                android:id="@+id/edit_route_btn"
+                android:id="@+id/remove_route_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:layout_marginEnd="12dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="edit"/>
+                android:text="Remove"/>
 
             <TextView
                 android:id="@+id/scheduled_train_number"
