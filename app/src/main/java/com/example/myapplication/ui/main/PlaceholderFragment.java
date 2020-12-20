@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 
-import com.example.myapplication.BlankFragment;
+import com.example.myapplication.QRItemFragment;
 import com.example.myapplication.R;
 import com.example.myapplication.RouteScheduleFragment;
 
@@ -23,7 +23,7 @@ public class PlaceholderFragment extends Fragment {
         if (index == 1) {
             fragment = new RouteScheduleFragment();
         } else {
-            fragment = new BlankFragment();
+            fragment = new QRItemFragment();
         }
         Bundle bundle = new Bundle();
         fragment.setArguments(bundle);

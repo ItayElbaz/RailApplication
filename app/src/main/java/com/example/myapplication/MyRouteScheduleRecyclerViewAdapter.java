@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+
+
 public class MyRouteScheduleRecyclerViewAdapter extends RecyclerView.Adapter<MyRouteScheduleRecyclerViewAdapter.ViewHolder> {
 
     private List<ScheduledRoute> mValues;
@@ -25,7 +28,7 @@ public class MyRouteScheduleRecyclerViewAdapter extends RecyclerView.Adapter<MyR
     public MyRouteScheduleRecyclerViewAdapter(RailVoucherActivity myActivity) {
         mValues = myActivity.schedulesRoutes;
         this.myActivity = myActivity;
-        myActivity.listner.observe(myActivity, new Observer<Integer>() {
+        myActivity.scheduleListner.observe(myActivity, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
                 notifyDataSetChanged();
@@ -51,10 +54,11 @@ public class MyRouteScheduleRecyclerViewAdapter extends RecyclerView.Adapter<MyR
         holder.mDepartureView.setText("Departure: " + hourFormat.format(mValues.get(position).route.departureTime));
         holder.mArrivalView.setText("Arrival: " + hourFormat.format(mValues.get(position).route.arrivalTime));
         holder.mScheduleText.setText(getScheduleText(mValues.get(position)));
-        holder.mEditBtn.setOnClickListener(new View.OnClickListener() {
+        holder.mRemoveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: on edit click create fragment that allow to change repeat + delete option
+                myActivity.removeScheduleRoute(mValues.get(position));
+                notifyDataSetChanged();
             }
         });
     }
@@ -102,7 +106,7 @@ public class MyRouteScheduleRecyclerViewAdapter extends RecyclerView.Adapter<MyR
         public final TextView mDepartureView;
         public final TextView mArrivalView;
         public final TextView mScheduleText;
-        public final Button mEditBtn;
+        public final Button mRemoveBtn;
         public ScheduledRoute mItem;
 
         public ViewHolder(View view) {
@@ -114,7 +118,7 @@ public class MyRouteScheduleRecyclerViewAdapter extends RecyclerView.Adapter<MyR
             mDepartureView = view.findViewById(R.id.scheduled_depart_time);
             mArrivalView = view.findViewById(R.id.scheduled_arrival_time);
             mScheduleText = view.findViewById(R.id.scheduled_text);
-            mEditBtn = view.findViewById(R.id.edit_route_btn);
+            mRemoveBtn = view.findViewById(R.id.remove_route_btn);
         }
 
         @Override

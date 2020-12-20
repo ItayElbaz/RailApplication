@@ -5,10 +5,17 @@
     android:layout_height="match_parent"
     tools:context=".WebViewFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <WebView
+        android:id="@+id/webview_place"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent" >
+    </WebView>
 
+    <ProgressBar
+        android:id="@+id/webview_progress"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"/>
 </FrameLayout>
