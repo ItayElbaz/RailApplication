@@ -31,6 +31,7 @@ public class RailVoucherActivity extends AppCompatActivity {
     public List<QRRouteItem> QRItems = new ArrayList<>();
     public MutableLiveData<Integer> QRListner = new MutableLiveData<>();
 
+    private DBhandler db;
     private int MY_PERMISSIONS_REQUEST = 10;
 
     @Override
@@ -43,9 +44,7 @@ public class RailVoucherActivity extends AppCompatActivity {
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
-        utils = new RailUtils(this);
-        scheduleListner.setValue(schedulesRoutes.size());
-        QRListner.setValue(QRItems.size());
+        initActivity();
 
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.RECEIVE_SMS,
@@ -86,16 +85,39 @@ public class RailVoucherActivity extends AppCompatActivity {
 
     public void addScheduleRoute(ScheduledRoute route) {
         this.schedulesRoutes.add(route);
+        this.db.addNewScheduleRoute(route);
         scheduleListner.setValue(schedulesRoutes.size());
     }
 
     public void removeScheduleRoute(ScheduledRoute route) {
         this.schedulesRoutes.remove(route);
+        this.db.deleteScheduleRoute(route);
         scheduleListner.setValue(schedulesRoutes.size());
     }
 
     public void addQRItem(QRRouteItem route) {
         this.QRItems.add(route);
+        this.db.addNewQR(route);
+        QRListner.setValue(QRItems.size());
+    }
+
+    public void deleteQRItem(QRRouteItem route) {
+        this.QRItems.remove(route);
+        this.db.deleteQR(route);
+        QRListner.setValue(QRItems.size());
+    }
+
+    private void initActivity() {
+        utils = new RailUtils(this);
+        db = new DBhandler(this);
+
+        List<ScheduledRoute> scheduledRoutes = db.getAllScheduledRoutes();
+        this.schedulesRoutes.addAll(scheduledRoutes);
+
+        List<QRRouteItem> allQRItems = db.getAllQR();
+        this.QRItems.addAll(allQRItems);
+
+        scheduleListner.setValue(schedulesRoutes.size());
         QRListner.setValue(QRItems.size());
     }
 }

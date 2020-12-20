@@ -280,8 +280,21 @@ class ScheduledRoute {
     public RailRoute route;
     public boolean repeated;
     public ArrayList<Integer> days;
+    public long scheduledTime;
 
     public ScheduledRoute(RailRoute route, ArrayList<Integer> days){
+        this.scheduledTime = System.currentTimeMillis();
+        this.route = route;
+        if (days != null) {
+            this.repeated = true;
+            this.days = days;
+        } else {
+            this.repeated = false;
+        }
+    }
+
+    public ScheduledRoute(RailRoute route, ArrayList<Integer> days, long scheduledTime ){
+        this.scheduledTime = scheduledTime;
         this.route = route;
         if (days != null) {
             this.repeated = true;
@@ -296,11 +309,20 @@ class QRRouteItem {
     public RailRoute route;
     public String QRref;
     public String barcode;
+    public long scheduledTime;
 
     public QRRouteItem(RailRoute route, String barcode, String QRref) {
         this.route = route ;
         this.barcode = barcode;
         this.QRref = QRref;
+        this.scheduledTime = System.currentTimeMillis();
+    }
+
+    public QRRouteItem(RailRoute route, String barcode, String QRref, long scheduledTime) {
+        this.route = route ;
+        this.barcode = barcode;
+        this.QRref = QRref;
+        this.scheduledTime = scheduledTime;
     }
 }
 
@@ -339,6 +361,17 @@ class RailRoute implements Serializable {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    public RailRoute(Date arrivalTime, Date departureTime, String destStation, String orignStation, String trainNum,
+            String destPlatform, boolean isDirectTrain) {
+        this.arrivalTime = arrivalTime;
+        this.departureTime = departureTime;
+        this.destStation = destStation;
+        this.orignStation = orignStation;
+        this.trainNum = trainNum;
+        this.destPlatform = destPlatform;
+        this.isDirectTrain = isDirectTrain;
     }
 
     public String toString() {
