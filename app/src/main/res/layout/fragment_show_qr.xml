@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@android:color/white"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ShowQrFragment"
+    android:id="@+id/frameLayout">
+
+
+    <ImageView
+        android:id="@+id/qr_frag_image"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="center"
+        android:src="@android:drawable/alert_dark_frame"
+        tools:layout_conversion_absoluteHeight="347dp"
+        tools:layout_conversion_absoluteWidth="358dp"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <Button
+        android:id="@+id/close_qr"
+        android:layout_marginTop="160dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close" />
+
+</FrameLayout>

@@ -1,25 +1,39 @@
 package com.example.myapplication;
 
+import android.content.IntentFilter;
+
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 
 public class RailUtils {
-    private String getRoutesUrl = "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=%d&TId=%d&Date=%s&Hour=%s&isGoing=true&c=%d";
     private Map<Integer, TrainStation> stationsMap = new HashMap<>();
     private String[] stationsNames;
     private TrainStation[] stationsList;
+    private SMSReceiver smsReceiver;
+    private RailVoucherActivity activity;
 
-    RailUtils() {
+    private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private final String getRoutesUrl = "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=%d&TId=%d&Date=%s&Hour=%s&isGoing=true&c=%d";
+    private final String getTokenURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?mobile=0544615463&userId=311240196&method=getToken";
+    private final String makeVoucherURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&smartCard=311240196&mobile=0544615463&userEmail=itayelbaz7@gmail.com&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1";
+    private final String sendSMSURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?Generatedref=%s&typeId=1&method=SendSms";
+
+    RailUtils(RailVoucherActivity activity) {
+        this.activity = activity;
+
         initTrainsData();
     }
 
@@ -49,10 +63,6 @@ public class RailUtils {
         }
     }
     
-    public String[] getStationsNames() {
-        return this.stationsNames;
-    }
-
     public TrainStation[] getStationsList() {
         return stationsList;
     }
@@ -169,40 +179,71 @@ public class RailUtils {
         Arrays.sort(stationsList);
     }
 
-    // TODO: make a method
-    /*** String sDate1="06/12/2020 11:00:00";
-     Date date1= null;
-     try {
-     date1 = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss").parse(sDate1);
-     } catch (ParseException e) {
-     e.printStackTrace();
-     }
-     List<RailRoute> test = utils.getTrainRoutes(7300, 4900, date1);
+    public void executeVoucherMaker(RailRoute route) {
+        smsReceiver = new SMSReceiver() {
+            @Override
+            public void afterAuth() throws ExecutionException, InterruptedException, JSONException {
+                String ticketBody = getTicketBody(route);
+                String ticket = new GetURL().execute(makeVoucherURL, ticketBody).get();
 
+                JSONObject ticketJSON = new JSONObject(ticket);
+                String generatedReference = ticketJSON.getJSONObject("voutcher").getString("GeneretedReferenceValue");
+                String barcodeString = ticketJSON.getString("BarcodeImage");
+                activity.addQRItem(new QRRouteItem(route, barcodeString, generatedReference));
 
-     smsReceiver = new SMSReceiver() {
-    @Override
-    public void afterAuth() throws ExecutionException, InterruptedException, JSONException {
-    Toast.makeText(getApplicationContext(), "got sms", Toast.LENGTH_SHORT).show();
+                String url = String.format(sendSMSURL, generatedReference);
 
-    String ticket = new GetURL().execute(makeVoucherURL, getTicketBody()).get();
-
-    JSONObject ticketJSON = new JSONObject(ticket);
-    String genertedReference = ticketJSON.getJSONObject("voutcher").getString("GeneretedReferenceValue");
-    String url = String.format(sendSMSURL, genertedReference);
-
-    Toast.makeText(getApplicationContext(), "Ordered voucher, getting SMS", Toast.LENGTH_SHORT).show();
-
-    new GetURL().execute(url, getTicketBody()).get();
-    unregisterReceiver(smsReceiver);
-    Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_SHORT).show();
+                new GetURL().execute(url, ticketBody).get();
+                activity.unregisterReceiver(smsReceiver);
+            }
+        };
+        IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
+        intentFilter.setPriority(999);
+        activity.registerReceiver(smsReceiver, intentFilter);
+        new GetURL().execute(getTokenURL);
     }
-    };
-     IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
-     intentFilter.setPriority(999);
-     registerReceiver(smsReceiver, intentFilter);
-     new GetURL().execute(getTokenURL);
-     Toast.makeText(getApplicationContext(), "waiting for sms", Toast.LENGTH_SHORT).show();***/
+
+    private String getTicketBody(RailRoute route) {
+        JSONObject json = new JSONObject();
+        try {
+            /** EXAMPLE
+             * json.put("destinationStationId", "23");
+             * json.put("destinationStationHe", "");
+             * json.put("orignStationId", "21");
+             * json.put("orignStationHe", "");
+             * json.put("trainNumber", 46);
+             * json.put("departureTime", "07/12/2020 18:01:00");
+             * json.put("arrivalTime", "07/12/2020 19:16:00");
+             * json.put("orignStation", "באר שבע- צפון/אוניברסיטה");
+             * json.put("destinationStation", "תל אביב - השלום");
+             * json.put("orignStationNum", 7300);
+             * json.put("destinationStationNum", 4600);
+             * json.put("DestPlatform", 1);
+             * json.put("TrainOrder", 1);
+             ***/
+            TrainStation fromStation = getStationDataById(route.orignStation);
+            TrainStation toStation = getStationDataById(route.destStation);
+
+            json.put("destinationStationId", toStation.id);
+            json.put("destinationStationHe", "");
+            json.put("orignStationId", fromStation.id);
+            json.put("orignStationHe", "");
+            json.put("trainNumber", Integer.valueOf(route.trainNum));
+            json.put("departureTime", dateFormat.format(route.departureTime));
+            json.put("arrivalTime", dateFormat.format(route.arrivalTime));
+            json.put("orignStation", fromStation.EN);
+            json.put("destinationStation", toStation.EN);
+            json.put("orignStationNum", Integer.valueOf(route.orignStation));
+            json.put("destinationStationNum", Integer.valueOf(route.destStation));
+            json.put("DestPlatform", Integer.valueOf(route.destStation));
+            json.put("TrainOrder", 1);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        return "[" + json.toString() + "]";
+    }
+
 }
 
 class TrainStation implements Comparable<TrainStation> {
@@ -248,6 +289,18 @@ class ScheduledRoute {
         } else {
             this.repeated = false;
         }
+    }
+}
+
+class QRRouteItem {
+    public RailRoute route;
+    public String QRref;
+    public String barcode;
+
+    public QRRouteItem(RailRoute route, String barcode, String QRref) {
+        this.route = route ;
+        this.barcode = barcode;
+        this.QRref = QRref;
     }
 }
 
