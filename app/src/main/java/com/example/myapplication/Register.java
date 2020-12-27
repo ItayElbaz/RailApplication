@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -26,19 +27,13 @@ public class Register extends Fragment {
     EditText id;
     EditText email;
     EditText phone;
+    private String addUserUrl= "http://35.234.68.144/add_user?id=%s&email=%s&password=%s&phone=%s";
 
     public Register() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment Register.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static Register newInstance(String param1, String param2) {
+    public static Register newInstance() {
         Register fragment = new Register();
         Bundle args = new Bundle();
         fragment.setArguments(args);
@@ -117,6 +112,9 @@ public class Register extends Fragment {
         String id = id_.getText().toString();
         String email = email_.getText().toString();
         String phone = phone_.getText().toString();
+        String url = String.format(addUserUrl, id, email, password, phone);
+        new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+        
         try{
             FileOutputStream fileOutputStreamLogin = v.getContext().openFileOutput("usersLogin.txt", 0);
             FileOutputStream fileOutputStreamData = v.getContext().openFileOutput("usersData.txt", 0);
@@ -126,7 +124,7 @@ public class Register extends Fragment {
             String allData = name + "\n" + password + "\n" + id + "\n" + phone + "\n"  + email;
             fileOutputStreamData.write(allData.getBytes());
             fileOutputStreamData.close();
-        }catch(IOException e){
+        } catch(IOException e) {
             e.printStackTrace();
         }
     }
