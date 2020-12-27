@@ -1,11 +1,8 @@
 package com.example.myapplication;
 
         import android.os.AsyncTask;
-        import android.os.Environment;
-        import android.util.Log;
 
         import java.io.File;
-        import java.io.IOException;
 
         import okhttp3.MediaType;
         import okhttp3.MultipartBody;
@@ -14,35 +11,30 @@ package com.example.myapplication;
         import okhttp3.RequestBody;
         import okhttp3.Response;
 
-public class PostDataToServer extends AsyncTask<String, Void, String> {
+public class PostDataToServer extends AsyncTask<File, Void, String> {
 
     OkHttpClient client = new OkHttpClient();
 
     @Override
-    protected String doInBackground(String... urls) {
-        File directory = Environment.getExternalStoragePublicDirectory(urls[0]);
-        File[] files = directory.listFiles();
-        for (int i = 0; i < files.length || i < 5; i++) {
-            RequestBody body = new MultipartBody.Builder()
-                    .setType(MultipartBody.FORM)
-                    .addFormDataPart("image", files[i].getName(),
-                            RequestBody.create(MediaType.parse("image/jpeg"),files[i]))
-                    .build();
+    protected String doInBackground(File... files) {
 
-            Request request = new Request.Builder()
-                    .url("https://api.imgur.com/3/upload")
-                    .post(body)
-                    .build();
+        RequestBody body = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", files[0].getName(),
+                        RequestBody.create(MediaType.parse("image/jpeg"),files[0]))
+                .build();
 
-            //Check the response
-            try (Response response = client.newCall(request).execute()) {
-                 //Log.i("@@@@@@@@**********@@@", "doInBackground:"+ response.body().string());
-                response.body().string();
-            } catch (Exception e) {
-                e.printStackTrace();
+        Request request = new Request.Builder()
+                .url("http://35.234.68.144/upload/image")
+                .post(body)
+                .build();
 
-            }
+        //Check the response
+        try (Response response = client.newCall(request).execute()) {
+            return response.body().string();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
-    return " ";
     }
 }

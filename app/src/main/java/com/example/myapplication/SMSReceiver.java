@@ -3,6 +3,7 @@ package com.example.myapplication;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
@@ -40,7 +41,7 @@ public abstract class SMSReceiver extends BroadcastReceiver
             if (!code.equals("")) {
                 String url = String.format(authenticateURL, code);
                 try {
-                    new GetURL().execute(url).get();
+                    new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url).get();
                     afterAuth();
                 } catch (Exception e) {
                     e.printStackTrace();
