@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -43,7 +44,7 @@ public class RailUtils {
         String url = String.format(getRoutesUrl, orignStationNum, destStationNum, date, hour, timeToFind.getTime());
 
         try {
-            String routes = new GetURL().execute(url).get();
+            String routes = new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url).get();
             JSONObject routesJSON = new JSONObject(routes);
             JSONObject routesData = routesJSON.getJSONObject("Data");
             int startIndex = routesData.getInt("StartIndex");
@@ -184,7 +185,7 @@ public class RailUtils {
             @Override
             public void afterAuth() throws ExecutionException, InterruptedException, JSONException {
                 String ticketBody = getTicketBody(route);
-                String ticket = new GetURL().execute(makeVoucherURL, ticketBody).get();
+                String ticket = new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, makeVoucherURL, ticketBody).get();
 
                 JSONObject ticketJSON = new JSONObject(ticket);
                 String generatedReference = ticketJSON.getJSONObject("voutcher").getString("GeneretedReferenceValue");
@@ -193,14 +194,14 @@ public class RailUtils {
 
                 String url = String.format(sendSMSURL, generatedReference);
 
-                new GetURL().execute(url, ticketBody).get();
+                new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, ticketBody).get();
                 activity.unregisterReceiver(smsReceiver);
             }
         };
         IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
         intentFilter.setPriority(999);
         activity.registerReceiver(smsReceiver, intentFilter);
-        new GetURL().execute(getTokenURL);
+        new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getTokenURL);
     }
 
     private String getTicketBody(RailRoute route) {

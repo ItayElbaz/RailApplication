@@ -15,6 +15,7 @@ public class GetURL extends AsyncTask<String, Void, String> {
 
     @Override
     protected String doInBackground(String... urls) {
+        Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
         Request request;
         if (urls.length > 1) {
             RequestBody body = RequestBody.create(urls[1], JSON);
