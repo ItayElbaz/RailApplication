@@ -52,6 +52,7 @@ def saveUserInfo():
     db_path = os.path.join(app.config['UPLOAD_FOLDER'], "users.db")
     conn = sqlite3.connect(db_path)
     add_user(conn, userId, email, phone, password)
+    conn.close()
     return 'true'
 
 if __name__ == "__main__":
