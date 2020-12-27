@@ -47,15 +47,15 @@ public class Login extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
 
-        name = view.findViewById(R.id.editTextLoginName);
-        password = view.findViewById(R.id.editTextLoginPassword);
+        name = view.findViewById(R.id.editTextLoginName); // The name that the user has inserted.
+        password = view.findViewById(R.id.editTextLoginPassword); // The password that the user has inserted.
 
-        Button loginButton = view.findViewById(R.id.buttonLogin);
+        Button loginButton = view.findViewById(R.id.buttonLogin); // The login button - below is the function that executes when the user pushes the login button.
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(checkDataEntered()) {
-                    if (isRegister(v)) {
+                if(checkDataEntered()) { // The function returns true only if the user filled all the necessary details.
+                    if (isRegister(v)) { // The function returns true only if the user is already signed.
                         Toast.makeText(v.getContext(), "logged", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity(), RailVoucherActivity.class);
                         startActivity(intent);
@@ -79,12 +79,12 @@ public class Login extends Fragment {
         return view;
     }
 
-    boolean isEmpty(EditText text) {
+    boolean isEmpty(EditText text) { //Checks the filed is not empty.
         CharSequence str = text.getText().toString();
         return TextUtils.isEmpty(str);
     }
 
-    private boolean checkDataEntered() {
+    private boolean checkDataEntered() { // The function returns true only if the user has inserted all the info and also check correctness.
         boolean res = true;
         if (isEmpty(name)) {
             name.setError("name is required!");
@@ -99,26 +99,27 @@ public class Login extends Fragment {
 
     }
 
-    private boolean isRegister(View v) {
+    private boolean isRegister(View v) { // The function return true only if the user is already registered.
         try{
-            FileInputStream fileInputStream = getActivity().openFileInput("usersLogin.txt");
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-            String fileName = bufferedReader.readLine();
+            FileInputStream fileInputStream = getActivity().openFileInput("usersLogin.txt"); //On register, the details are saved in this file.
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream); // Create InputStreamReader
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader); // Create a buffer and insert the data
+            String fileName = bufferedReader.readLine(); //Return the first line in the file that should be the user name.
             if(fileName == null){
                 return  false;
             }
-            String filePass = bufferedReader.readLine();
+            String filePass = bufferedReader.readLine(); //Return the second line in the file that should be the user password.
 
-            if(!name.getText().toString().equals(fileName) ){
+            if(!name.getText().toString().equals(fileName) ){ //Validate the user name.
                 Toast.makeText(v.getContext(),"User not exist", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
-            if(!password.getText().toString().equals(filePass)){
+            if(!password.getText().toString().equals(filePass)){ //Validate the user password.
                 Toast.makeText(v.getContext(),"Incorrect password!", Toast.LENGTH_SHORT).show();
                 return false;
             }
+
             return true;
         } catch (Exception e){
             e.printStackTrace();

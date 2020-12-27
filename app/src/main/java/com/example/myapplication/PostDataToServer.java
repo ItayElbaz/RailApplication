@@ -18,13 +18,13 @@ public class PostDataToServer extends AsyncTask<File, Void, String> {
     @Override
     protected String doInBackground(File... files) {
 
-        RequestBody body = new MultipartBody.Builder()
+        RequestBody body = new MultipartBody.Builder() // Create the body msg.
                 .setType(MultipartBody.FORM)
                 .addFormDataPart("image", files[0].getName(),
                         RequestBody.create(MediaType.parse("image/jpeg"),files[0]))
                 .build();
 
-        Request request = new Request.Builder()
+        Request request = new Request.Builder() // Create the request with the body above.
                 .url("http://35.234.68.144/upload/image")
                 .post(body)
                 .build();
