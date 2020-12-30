@@ -27,7 +27,7 @@ public class Login extends Fragment {
     EditText password;
 
     public Login() { }
-
+    // create an login instance.
     public static Login newInstance(String param1, String param2) {
         Login fragment = new Login();
         Bundle args = new Bundle();

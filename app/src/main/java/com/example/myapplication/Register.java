@@ -22,17 +22,17 @@ import java.io.IOException;
  * create an instance of this fragment.
  */
 public class Register extends Fragment {
-    EditText name;
-    EditText password;
-    EditText id;
-    EditText email;
-    EditText phone;
+    EditText name; // The user will insert the data to this field
+    EditText password;  // The user will insert the data to this field
+    EditText id;    // The user will insert the data to this field
+    EditText email; // The user will insert the data to this field
+    EditText phone; // The user will insert the data to this field
     private String addUserUrl= "http://35.234.68.144/add_user?id=%s&email=%s&password=%s&phone=%s";
 
     public Register() {
         // Required empty public constructor
     }
-
+    // create new instance of register.
     public static Register newInstance() {
         Register fragment = new Register();
         Bundle args = new Bundle();
@@ -108,13 +108,13 @@ public class Register extends Fragment {
     }
     // After validated all the data is not null and correct its save the data to the db.
     void writeToDb(View v, EditText name_, EditText password_, EditText id_, EditText email_, EditText phone_){
-        String name = name_.getText().toString();
-        String password = password_.getText().toString();
-        String id = id_.getText().toString();
-        String email = email_.getText().toString();
-        String phone = phone_.getText().toString();
+        String name = name_.getText().toString(); // convert to string
+        String password = password_.getText().toString(); // convert to string
+        String id = id_.getText().toString(); // convert to string
+        String email = email_.getText().toString(); // convert to string
+        String phone = phone_.getText().toString(); // convert to string
         String url = String.format(addUserUrl, id, email, password, phone);
-        new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
+        new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url); // Adds the thread to the Executor.
         
         try{//Open 2 files that will be the local DB.
             FileOutputStream fileOutputStreamLogin = v.getContext().openFileOutput("usersLogin.txt", 0);
