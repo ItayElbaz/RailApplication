@@ -24,18 +24,18 @@ public class DBhandler {
 
     public void addNewScheduleRoute(ScheduledRoute route) {
         SQLiteDatabase dbb = db.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
+        ContentValues contentValues = new ContentValues(); //Map that contains Schedule Routes info
         contentValues.put(myDbHelper.KEY_ID, route.scheduledTime);
-        contentValues.put(myDbHelper.KEY_REPEATED, route.repeated);
+        contentValues.put(myDbHelper.KEY_REPEATED, route.repeated); //if the user want this train repeated in some day.
 
-        if (route.repeated) {
+        if (route.repeated) { //if repeated check in which days.
             contentValues.put(myDbHelper.KEY_SUNDAY, route.days.contains(0));
             contentValues.put(myDbHelper.KEY_MONDAY, route.days.contains(1));
             contentValues.put(myDbHelper.KEY_TUESDAY, route.days.contains(2));
             contentValues.put(myDbHelper.KEY_WEDNESDAY, route.days.contains(3));
             contentValues.put(myDbHelper.KEY_THURSDAY, route.days.contains(4));
         }
-
+        // Adds more info about this new schedule the user ask to add.
         contentValues.put(myDbHelper.KEY_ARRIVAL, dateFormat.format(route.route.arrivalTime));
         contentValues.put(myDbHelper.KEY_DEPARTURE, dateFormat.format(route.route.departureTime));
         contentValues.put(myDbHelper.KEY_DESTINATION, route.route.destStation);
@@ -46,7 +46,7 @@ public class DBhandler {
         contentValues.put(myDbHelper.KEY_IS_ORDERED, route.isOrdered);
         long id = dbb.insert(myDbHelper.TABLE_schedule_routes, null , contentValues);
     }
-
+    //delete this schedule Route
     public void deleteScheduleRoute(ScheduledRoute route) {
         SQLiteDatabase dbb = db.getWritableDatabase();
         String[] whereArgs ={String.valueOf(route.scheduledTime)};
@@ -72,7 +72,7 @@ public class DBhandler {
 
         dbb.update(myDbHelper.TABLE_schedule_routes, contentValues, myDbHelper.KEY_ID+" = ?", whereArgs);
     }
-
+    // Get all ScheduledRoutes by sql query.
     public List<ScheduledRoute> getAllScheduledRoutes() {
         ArrayList<ScheduledRoute> scheduledRoutes = new ArrayList<>();
         Date today = new Date();
@@ -125,7 +125,7 @@ public class DBhandler {
         }
         return  scheduledRoutes;
     }
-
+    //Add new QR to the db to the TABLE_QR_codes.
     public void addNewQR(QRRouteItem route) {
         SQLiteDatabase dbb = db.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
@@ -143,13 +143,14 @@ public class DBhandler {
         long id = dbb.insert(myDbHelper.TABLE_QR_codes, null , contentValues);
     }
 
+    // Delete QR - search it in the table by the route scheduledTime
     public void deleteQR(QRRouteItem route) {
         SQLiteDatabase dbb = db.getWritableDatabase();
         String[] whereArgs ={String.valueOf(route.scheduledTime)};
 
         int count =dbb.delete(myDbHelper.TABLE_QR_codes ,myDbHelper.KEY_ID+" = ?",whereArgs);
     }
-
+    // Get all QR from the db by query.
     public List<QRRouteItem> getAllQR() {
         ArrayList<QRRouteItem> QRItems = new ArrayList<>();
         long today = new Date().getTime();
@@ -188,7 +189,7 @@ public class DBhandler {
 
         return  QRItems;
     }
-
+    // Define myDbHelper -  extends SQLiteOpenHelper
     static class myDbHelper extends SQLiteOpenHelper   {
         private static final int DB_VERSION = 1;
         private static final String DB_NAME = "israelrails.db";
@@ -214,11 +215,13 @@ public class DBhandler {
         private static final String KEY_BARCODE = "barcode";
         private static final String KEY_IS_ORDERED = "is_ordered";
 
-
+        // constructor.
         public myDbHelper(Context context){
             super(context,DB_NAME, null, DB_VERSION);
         }
 
+        // myDbHelper -  extends SQLiteOpenHelper so need to implement this method.
+        // Create all tables.
         @Override
         public void onCreate(SQLiteDatabase db){
             String CREATE_TABLE = "CREATE TABLE " + TABLE_schedule_routes + "("
