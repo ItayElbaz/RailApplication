@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,17 +25,21 @@ public class RailUtils {
     private String[] stationsNames;
     private TrainStation[] stationsList;
     private SMSReceiver smsReceiver;
+    private DBhandler db;
     private RailVoucherActivity activity;
 
     private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private final String getRoutesUrl = "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=%d&TId=%d&Date=%s&Hour=%s&isGoing=true&c=%d";
-    private final String getTokenURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?mobile=0544615463&userId=311240196&method=getToken";
-    private final String makeVoucherURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&smartCard=311240196&mobile=0544615463&userEmail=itayelbaz7@gmail.com&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1";
+    private final String getTokenURLTemplate = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?mobile=%s&userId=%s&method=getToken&type=sms";
+    private final String authAndOrderUrl = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1&token=%s";
     private final String sendSMSURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?Generatedref=%s&typeId=1&method=SendSms";
 
-    RailUtils(RailVoucherActivity activity) {
-        this.activity = activity;
+    private String getTokenURL;
 
+    RailUtils(RailVoucherActivity activity, DBhandler db) {
+        this.activity = activity;
+        this.db = db;
+        getTokenURL = String.format(getTokenURLTemplate, activity.userMobile, activity.userId);
         initTrainsData();
     }
 
@@ -69,7 +74,7 @@ public class RailUtils {
     }
 
     public TrainStation getStationDataById(String id) {
-        int num_id = Integer.parseInt(id); // TODO: change map to string and not int
+        int num_id = Integer.parseInt(id);
 
         return this.stationsMap.get(num_id);
     }
@@ -180,12 +185,25 @@ public class RailUtils {
         Arrays.sort(stationsList);
     }
 
-    public void executeVoucherMaker(RailRoute route) {
+    public void orderNext24HrsVouchers() {
+        Date today = new Date();
+        db.getAllScheduledRoutes().forEach((scheduledRoute -> {
+            long diff = scheduledRoute.route.departureTime.getTime() - today.getTime();
+            int hoursGap = (int) diff / (1000*60*60);
+            if (hoursGap < 24) {
+                executeVoucherMaker(scheduledRoute);
+            }
+        }));
+    }
+
+    public void executeVoucherMaker(ScheduledRoute scheduledRoute) {
+        RailRoute route = scheduledRoute.route;
         smsReceiver = new SMSReceiver() {
             @Override
-            public void afterAuth() throws ExecutionException, InterruptedException, JSONException {
+            public void afterAuth(String code) throws ExecutionException, InterruptedException, JSONException {
                 String ticketBody = getTicketBody(route);
-                String ticket = new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, makeVoucherURL, ticketBody).get();
+                String ticketUrl = String.format(authAndOrderUrl, code);
+                String ticket = new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, ticketUrl, ticketBody).get();
 
                 JSONObject ticketJSON = new JSONObject(ticket);
                 String generatedReference = ticketJSON.getJSONObject("voutcher").getString("GeneretedReferenceValue");
@@ -196,6 +214,8 @@ public class RailUtils {
 
                 new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, ticketBody).get();
                 activity.unregisterReceiver(smsReceiver);
+                updateDBAfterOrder(scheduledRoute);
+
             }
         };
         IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
@@ -204,7 +224,38 @@ public class RailUtils {
         new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getTokenURL);
     }
 
+    private void updateDBAfterOrder(ScheduledRoute scheduledRoute) {
+        if (scheduledRoute.repeated) {
+            // Update route dates
+            int newDay = scheduledRoute.route.departureTime.getDay() + 1;
+            Date departureNextDay = getNextXday(scheduledRoute.route.departureTime, newDay);
+            Date arrivalNextDay = getNextXday(scheduledRoute.route.arrivalTime, newDay);
+            while (!scheduledRoute.days.contains(newDay)) {
+                newDay = (newDay + 1) % 5;
+            }
+            scheduledRoute.route.departureTime = getNextXday(departureNextDay, newDay);
+            scheduledRoute.route.arrivalTime = getNextXday(arrivalNextDay, newDay);
+
+            db.updateRepeatedRoutesDates(scheduledRoute);
+        } else {
+            db.scheduledRouteWasOrdered(scheduledRoute);
+        }
+    }
+
+    private Date getNextXday(Date date , int day) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        while (date.getDay() != day) {
+            cal.add(Calendar.DATE, 1);
+            date = cal.getTime();
+        }
+
+        return cal.getTime();
+    }
+
     private String getTicketBody(RailRoute route) {
+        JSONObject trainJson = new JSONObject();
+        JSONArray trainArray = new JSONArray();
         JSONObject json = new JSONObject();
         try {
             /** EXAMPLE
@@ -224,25 +275,36 @@ public class RailUtils {
              ***/
             TrainStation fromStation = getStationDataById(route.orignStation);
             TrainStation toStation = getStationDataById(route.destStation);
+            Date trainDate = route.departureTime;
+            trainDate.setHours(0);
+            trainDate.setMinutes(0);
+            trainJson.put("TrainDate", dateFormat.format(trainDate));
+            trainJson.put("destinationStationId", toStation.id);
+            trainJson.put("destinationStationHe", "");
+            trainJson.put("orignStationId", fromStation.id);
+            trainJson.put("orignStationHe", "");
+            trainJson.put("trainNumber", Integer.valueOf(route.trainNum));
+            trainJson.put("departureTime", dateFormat.format(route.departureTime));
+            trainJson.put("arrivalTime", dateFormat.format(route.arrivalTime));
 
-            json.put("destinationStationId", toStation.id);
-            json.put("destinationStationHe", "");
-            json.put("orignStationId", fromStation.id);
-            json.put("orignStationHe", "");
-            json.put("trainNumber", Integer.valueOf(route.trainNum));
-            json.put("departureTime", dateFormat.format(route.departureTime));
-            json.put("arrivalTime", dateFormat.format(route.arrivalTime));
-            json.put("orignStation", fromStation.EN);
-            json.put("destinationStation", toStation.EN);
-            json.put("orignStationNum", Integer.valueOf(route.orignStation));
-            json.put("destinationStationNum", Integer.valueOf(route.destStation));
-            json.put("DestPlatform", Integer.valueOf(route.destStation));
-            json.put("TrainOrder", 1);
+            trainJson.put("orignStation", fromStation.EN);
+            trainJson.put("destinationStation", toStation.EN);
+            trainJson.put("orignStationNum", Integer.valueOf(route.orignStation));
+            trainJson.put("destinationStationNum", Integer.valueOf(route.destStation));
+            trainJson.put("DestPlatform", Integer.valueOf(route.destPlatform));
+            trainJson.put("TrainOrder", 1);
+
+            json.put("smartcard", activity.userId);
+            json.put("mobile", activity.userMobile);
+            json.put("email", activity.userEmail);
+            trainArray.put(trainJson);
+            json.put("trainsResult", trainArray);
+
         } catch (Exception e) {
             // ignore
         }
 
-        return "[" + json.toString() + "]";
+        return json.toString();
     }
 
 }
@@ -273,7 +335,7 @@ class TrainStation implements Comparable<TrainStation> {
 
     @Override
     public int compareTo(TrainStation o) {
-        return this.EN.compareTo(((TrainStation) o).EN);
+        return this.EN.compareTo(o.EN);
     }
 }
 
@@ -282,10 +344,12 @@ class ScheduledRoute {
     public boolean repeated;
     public ArrayList<Integer> days;
     public long scheduledTime;
+    public boolean isOrdered;
 
     public ScheduledRoute(RailRoute route, ArrayList<Integer> days){
         this.scheduledTime = System.currentTimeMillis();
         this.route = route;
+        this.isOrdered = false;
         if (days != null) {
             this.repeated = true;
             this.days = days;
@@ -294,8 +358,9 @@ class ScheduledRoute {
         }
     }
 
-    public ScheduledRoute(RailRoute route, ArrayList<Integer> days, long scheduledTime ){
+    public ScheduledRoute(RailRoute route, ArrayList<Integer> days, long scheduledTime, boolean isOrdered){
         this.scheduledTime = scheduledTime;
+        this.isOrdered = isOrdered;
         this.route = route;
         if (days != null) {
             this.repeated = true;

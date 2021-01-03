@@ -121,7 +121,7 @@ public class Register extends Fragment {
             String strLogin = name + "\n" + password + "\n";
             fileOutputStreamLogin.write(strLogin.getBytes());
             fileOutputStreamLogin.close();
-            String allData = name + "\n" + password + "\n" + id + "\n" + phone + "\n"  + email;
+            String allData = id + "\n" + phone + "\n"  + email;
             fileOutputStreamData.write(allData.getBytes());
             fileOutputStreamData.close();
         } catch(IOException e) {
