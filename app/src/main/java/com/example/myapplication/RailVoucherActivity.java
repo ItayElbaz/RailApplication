@@ -40,10 +40,6 @@ public class RailVoucherActivity extends AppCompatActivity {
     public String userMobile;
 
     private DBhandler db;
-<<<<<<< HEAD
-=======
-    private int MY_PERMISSIONS_REQUEST = 10; // For the user's permission.
->>>>>>> main
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,15 +54,6 @@ public class RailVoucherActivity extends AppCompatActivity {
         getUserDetails();
         initActivity();
 
-<<<<<<< HEAD
-=======
-        ActivityCompat.requestPermissions(this,         // Ask permission from the user.
-                new String[]{Manifest.permission.RECEIVE_SMS,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE},
-                MY_PERMISSIONS_REQUEST);
-
->>>>>>> main
         getImages(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES));
 
         FloatingActionButton fab = findViewById(R.id.fab);
