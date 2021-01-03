@@ -122,8 +122,13 @@ public class Register extends Fragment {
             String strLogin = name + "\n" + password + "\n"; // Make user info line by format to the file.
             fileOutputStreamLogin.write(strLogin.getBytes()); // Write the data to the file.
             fileOutputStreamLogin.close();
+<<<<<<< HEAD
+            String allData = id + "\n" + phone + "\n"  + email;
+            fileOutputStreamData.write(allData.getBytes());
+=======
             String allData = name + "\n" + password + "\n" + id + "\n" + phone + "\n"  + email; // Make user info line by format to the file.
             fileOutputStreamData.write(allData.getBytes()); // Write the data to the db (file).
+>>>>>>> main
             fileOutputStreamData.close();
         } catch(IOException e) {
             e.printStackTrace();

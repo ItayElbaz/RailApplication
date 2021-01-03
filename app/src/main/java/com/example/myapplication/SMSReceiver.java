@@ -3,7 +3,6 @@ package com.example.myapplication;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 
@@ -16,8 +15,6 @@ import java.util.regex.Pattern;
 
 public abstract class SMSReceiver extends BroadcastReceiver
 {
-    String authenticateURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?userId=311240196&token=%s&method=checkToken";
-
     @Override
     public void onReceive(Context context, Intent intent)
     {
@@ -39,10 +36,8 @@ public abstract class SMSReceiver extends BroadcastReceiver
             }
 
             if (!code.equals("")) {
-                String url = String.format(authenticateURL, code);
                 try {
-                    new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url).get();
-                    afterAuth();
+                    afterAuth(code);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -51,7 +46,7 @@ public abstract class SMSReceiver extends BroadcastReceiver
     }
 
     public static String extractDigits(final String in) {
-        final Pattern p = Pattern.compile("(^[0-9]{6}$)");
+        final Pattern p = Pattern.compile("(^[0-9]{5,6}$)");
         final Matcher m = p.matcher(in);
         if ( m.find() ) {
             return m.group( 0 );
@@ -59,5 +54,5 @@ public abstract class SMSReceiver extends BroadcastReceiver
         return "";
     }
 
-    public abstract void afterAuth() throws ExecutionException, InterruptedException, JSONException;
+    public abstract void afterAuth(String code) throws ExecutionException, InterruptedException, JSONException;
 }

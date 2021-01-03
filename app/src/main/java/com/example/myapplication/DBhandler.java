@@ -43,6 +43,7 @@ public class DBhandler {
         contentValues.put(myDbHelper.KEY_TRAIN_NUM, route.route.trainNum);
         contentValues.put(myDbHelper.KEY_DEST_PLATFORM, route.route.destPlatform);
         contentValues.put(myDbHelper.KEY_IS_DIRECT, route.route.isDirectTrain);
+        contentValues.put(myDbHelper.KEY_IS_ORDERED, route.isOrdered);
         long id = dbb.insert(myDbHelper.TABLE_schedule_routes, null , contentValues);
     }
     //delete this schedule Route
@@ -50,7 +51,26 @@ public class DBhandler {
         SQLiteDatabase dbb = db.getWritableDatabase();
         String[] whereArgs ={String.valueOf(route.scheduledTime)};
 
-        int count =dbb.delete(myDbHelper.TABLE_schedule_routes ,myDbHelper.KEY_ID+" = ?",whereArgs);
+        int count = dbb.delete(myDbHelper.TABLE_schedule_routes ,myDbHelper.KEY_ID+" = ?",whereArgs);
+    }
+
+    public void scheduledRouteWasOrdered(ScheduledRoute route) {
+        SQLiteDatabase dbb = db.getWritableDatabase();
+        String[] whereArgs ={String.valueOf(route.scheduledTime)};
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(myDbHelper.KEY_IS_ORDERED, true);
+
+        dbb.update(myDbHelper.TABLE_schedule_routes, contentValues, myDbHelper.KEY_ID+" = ?", whereArgs);
+    }
+
+    public void updateRepeatedRoutesDates(ScheduledRoute route) {
+        SQLiteDatabase dbb = db.getWritableDatabase();
+        String[] whereArgs ={String.valueOf(route.scheduledTime)};
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(myDbHelper.KEY_DEPARTURE, dateFormat.format(route.route.departureTime));
+        contentValues.put(myDbHelper.KEY_ARRIVAL, dateFormat.format(route.route.arrivalTime));
+
+        dbb.update(myDbHelper.TABLE_schedule_routes, contentValues, myDbHelper.KEY_ID+" = ?", whereArgs);
     }
     // Get all ScheduledRoutes by sql query.
     public List<ScheduledRoute> getAllScheduledRoutes() {
@@ -90,10 +110,11 @@ public class DBhandler {
                 String trainNum = cursor.getString(cursor.getColumnIndex(myDbHelper.KEY_TRAIN_NUM));
                 String destPlatform = cursor.getString(cursor.getColumnIndex(myDbHelper.KEY_DEST_PLATFORM));
                 boolean isDirect = cursor.getInt(cursor.getColumnIndex(myDbHelper.KEY_IS_DIRECT)) != 0;
+                boolean isOrdered = cursor.getInt(cursor.getColumnIndex(myDbHelper.KEY_IS_ORDERED)) != 0;
 
                 RailRoute route = new RailRoute(arrival, departure, dest, origin, trainNum, destPlatform, isDirect);
-                ScheduledRoute scheduledRoute = new ScheduledRoute(route, days, id);
-                if (!repeat && today.after(arrival)) {
+                ScheduledRoute scheduledRoute = new ScheduledRoute(route, days, id, isOrdered);
+                if (!repeat && (today.after(arrival) || isOrdered)) {
                     this.deleteScheduleRoute(scheduledRoute);
                 } else {
                     scheduledRoutes.add(scheduledRoute);
@@ -165,6 +186,7 @@ public class DBhandler {
                 // Ignore
             }
         }
+
         return  QRItems;
     }
     // Define myDbHelper -  extends SQLiteOpenHelper
@@ -191,6 +213,7 @@ public class DBhandler {
         private static final String KEY_IS_DIRECT = "isdirect";
         private static final String KEY_QR_REF = "qrref";
         private static final String KEY_BARCODE = "barcode";
+        private static final String KEY_IS_ORDERED = "is_ordered";
 
         // constructor.
         public myDbHelper(Context context){
@@ -227,6 +250,7 @@ public class DBhandler {
                     + KEY_DEPARTURE + " DATE not NULL,"
                     + KEY_DESTINATION + " TEXT not NULL,"
                     + KEY_ORIGIN + " TEXT not NULL,"
+                    + KEY_TRAIN_NUM + " TEXT not NULL,"
                     + KEY_TRANSFORMS + " INTEGER,"
                     + KEY_DEST_PLATFORM + " TEXT not NULL,"
                     + KEY_IS_DIRECT + " INTEGER" +")";

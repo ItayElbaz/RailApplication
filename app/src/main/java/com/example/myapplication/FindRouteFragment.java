@@ -22,7 +22,6 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,7 +33,7 @@ public class FindRouteFragment extends Fragment {
     private int year;
     private int month;
     private int day;
-    private Date date;
+    private Date today;
     private TextView dateView;
 
     public FindRouteFragment() {
@@ -48,7 +47,7 @@ public class FindRouteFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        date = new Date();
+        today = new Date();
         items = ((RailVoucherActivity)getActivity()).utils.getStationsList();
     }
 
@@ -72,9 +71,9 @@ public class FindRouteFragment extends Fragment {
             }
         });
 
-        year = date.getYear() + 1900;
-        month = date.getMonth();
-        day = date.getDate();
+        year = today.getYear() + 1900;
+        month = today.getMonth();
+        day = today.getDate();
         dateView = view.findViewById(R.id.train_date);
         dateView.setText(String.format("%02d/%02d/%d", day, month + 1,  year));
         dateView.setOnClickListener(new View.OnClickListener() {
@@ -137,7 +136,11 @@ public class FindRouteFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(), "Please select days to repeat", Toast.LENGTH_SHORT).show();
                 return;
             } else {
-                date = getNextXday(selectedDays.get(0));
+                int dayToFind = today.getDay();
+                while (!selectedDays.contains(dayToFind)) {
+                    dayToFind = (dayToFind + 1) % 5;
+                }
+                date = getNextXday(dayToFind);
             }
         } else {
             date = new Date();
