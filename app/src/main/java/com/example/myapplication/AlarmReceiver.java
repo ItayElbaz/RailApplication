@@ -97,7 +97,7 @@ public class AlarmReceiver extends BroadcastReceiver {
              ***/
             TrainStation fromStation = utils.getStationDataById(route.orignStation);
             TrainStation toStation = utils.getStationDataById(route.destStation);
-            Date trainDate = route.departureTime;
+            Date trainDate = new Date(route.departureTime.getTime());
             trainDate.setHours(0);
             trainDate.setMinutes(0);
             trainJson.put("TrainDate", utils.dateFormat.format(trainDate));
