@@ -279,7 +279,7 @@ public class RailUtils {
              ***/
             TrainStation fromStation = getStationDataById(route.orignStation);
             TrainStation toStation = getStationDataById(route.destStation);
-            Date trainDate = route.departureTime;
+            Date trainDate = new Date(route.departureTime.getTime());
             trainDate.setHours(0);
             trainDate.setMinutes(0);
             trainJson.put("TrainDate", dateFormat.format(trainDate));
