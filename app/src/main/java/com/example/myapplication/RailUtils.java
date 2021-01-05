@@ -28,13 +28,18 @@ public class RailUtils {
     private DBhandler db;
     private RailVoucherActivity activity;
 
-    private final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private final String getRoutesUrl = "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=%d&TId=%d&Date=%s&Hour=%s&isGoing=true&c=%d";
-    private final String getTokenURLTemplate = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?mobile=%s&userId=%s&method=getToken&type=sms";
-    private final String authAndOrderUrl = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1&token=%s";
-    private final String sendSMSURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?Generatedref=%s&typeId=1&method=SendSms";
+    public final DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    public final String getRoutesUrl = "https://www.rail.co.il/apiinfo/api/Plan/GetRoutes?OId=%d&TId=%d&Date=%s&Hour=%s&isGoing=true&c=%d";
+    public final String getTokenURLTemplate = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?mobile=%s&userId=%s&method=getToken&type=sms";
+    public final String authAndOrderUrl = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?numSeats=1&method=MakeVoucherSeatsReservation&IsSendEmail=true&source=1&typeId=1&token=%s";
+    public final String sendSMSURL = "https://www.rail.co.il/taarif//_layouts/15/SolBox.Rail.FastSale/ReservedPlaceHandler.ashx?Generatedref=%s&typeId=1&method=SendSms";
+    public String getTokenURL;
 
-    private String getTokenURL;
+    RailUtils(DBhandler db, String mobile, String userId ) {
+        this.db = db;
+        getTokenURL = String.format(getTokenURLTemplate, mobile, userId);
+        initTrainsData();
+    }
 
     RailUtils(RailVoucherActivity activity, DBhandler db) {
         this.activity = activity;
@@ -215,7 +220,6 @@ public class RailUtils {
                 new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url, ticketBody).get();
                 activity.unregisterReceiver(smsReceiver);
                 updateDBAfterOrder(scheduledRoute);
-
             }
         };
         IntentFilter intentFilter = new IntentFilter("android.provider.Telephony.SMS_RECEIVED");
@@ -224,7 +228,7 @@ public class RailUtils {
         new GetURL().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, getTokenURL);
     }
 
-    private void updateDBAfterOrder(ScheduledRoute scheduledRoute) {
+    public void updateDBAfterOrder(ScheduledRoute scheduledRoute) {
         if (scheduledRoute.repeated) {
             // Update route dates
             int newDay = scheduledRoute.route.departureTime.getDay() + 1;

