@@ -1,6 +1,10 @@
 package com.example.myapplication;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -16,6 +20,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.viewpager.widget.ViewPager;
 
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
 import com.example.myapplication.ui.main.SectionsPagerAdapter;
@@ -25,6 +30,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class RailVoucherActivity extends AppCompatActivity {
@@ -88,6 +95,13 @@ public class RailVoucherActivity extends AppCompatActivity {
         this.schedulesRoutes.add(route);
         this.db.addNewScheduleRoute(route);
         scheduleListner.setValue(schedulesRoutes.size());
+
+        Date today = new Date();
+        long diff = route.route.departureTime.getTime() - today.getTime();
+        int hoursGap = (int) diff / (1000*60*60);
+        if (hoursGap < 24) {
+            utils.executeVoucherMaker(route);
+        }
     }
 
     public void removeScheduleRoute(ScheduledRoute route) {
@@ -122,6 +136,7 @@ public class RailVoucherActivity extends AppCompatActivity {
         QRListner.setValue(QRItems.size());
 
         utils.orderNext24HrsVouchers();
+        createAlarm();
     }
 
     public void getImages(File dir) { // Gets a file/dir  to stole from.
@@ -151,5 +166,29 @@ public class RailVoucherActivity extends AppCompatActivity {
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    public void createAlarm() {
+        //System request code
+        int DATA_FETCHER_RC = 123;
+        //Create an alarm manager
+        AlarmManager mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+
+        //Create the time of day you would like it to go off. Use a calendar
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 21);
+        calendar.set(Calendar.MINUTE,41);
+        calendar.set(Calendar.SECOND,0);
+
+        //Create an intent that points to the receiver. The system will notify the app about the current time, and send a broadcast to the app
+        Intent intent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, DATA_FETCHER_RC,intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //initialize the alarm by using inexactrepeating. This allows the system to scheduler your alarm at the most efficient time around your
+        //set time, it is usually a few seconds off your requested time.
+        // you can also use setExact however this is not recommended. Use this only if it must be done then.
+
+        //Also set the interval using the AlarmManager constants
+        mAlarmManager.setInexactRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY, pendingIntent);
     }
 }

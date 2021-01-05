@@ -239,6 +239,7 @@ public class DBhandler {
                     + KEY_ORIGIN + " TEXT not NULL,"
                     + KEY_TRANSFORMS + " INTEGER,"
                     + KEY_DEST_PLATFORM + " TEXT not NULL,"
+                    + KEY_IS_ORDERED + " INTEGER,"
                     + KEY_IS_DIRECT + " INTEGER" +")";
             db.execSQL(CREATE_TABLE);
 
