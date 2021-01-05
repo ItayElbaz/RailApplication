@@ -58,7 +58,7 @@
                 android:textColor="#DE000000"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn" />
+                app:layout_constraintEnd_toStartOf="@+id/remove_route_btn" />
 
             <TextView
                 android:id="@+id/scheduled_from_station"
@@ -69,7 +69,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintEnd_toStartOf="@+id/remove_route_btn"
                 app:layout_constraintTop_toBottomOf="@+id/scheduled_train_number" />
 
             <TextView
@@ -82,7 +82,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintEnd_toStartOf="@+id/remove_route_btn"
                 app:layout_constraintTop_toBottomOf="@+id/scheduled_from_station" />
 
             <TextView
@@ -95,7 +95,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintEnd_toStartOf="@+id/remove_route_btn"
                 app:layout_constraintTop_toBottomOf="@+id/scheduled_to_station" />
 
             <TextView
@@ -108,7 +108,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                 android:textColor="#8A000000"
                 app:layout_constraintStart_toEndOf="@+id/train_image"
-                app:layout_constraintEnd_toStartOf="@+id/edit_route_btn"
+                app:layout_constraintEnd_toStartOf="@+id/remove_route_btn"
                 app:layout_constraintTop_toBottomOf="@+id/scheduled_depart_time" />
 
             <TextView
