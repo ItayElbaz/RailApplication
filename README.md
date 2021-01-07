@@ -8,6 +8,11 @@ More details can be found in the user manual.
 
 The app currently working with our temporary server, all you need to do is simply install `IsraelRailVouchers.apk` in your android device.
 
+
+<img src="Screenshots/AddScheduleRoute.jpeg" alt="test" width="200"/>          <img src="Screenshots/ChooseDate.jpeg" alt="test" width="200"/>          <img src="Screenshots/ScheduledRoutes.jpeg" alt="test" width="200"/>
+
+<img src="Screenshots/QRVouchers.jpeg" alt="test" width="200"/>          <img src="Screenshots/QRZoom.png" alt="test" width="200"/>
+
 For those who desire to install their own setup here's the installation details:
 
 ### How to install the server?
